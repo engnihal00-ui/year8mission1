@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Computer Components Quest</title>
+<style>
+:root{--bg:#f4f7fb;--card:#fff;--ink:#1f2a44;--mut:#5b6b85;--pri:#2e74b5;--ok:#1e8e5a;--bad:#d64545;--gold:#e9a914;--bd:#d5deea;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1626;--card:#19233a;--ink:#e8eefc;--mut:#9fb0cf;--pri:#5aa2e6;--ok:#3ec27f;--bad:#f06a6a;--gold:#f5c04a;--bd:#2c3a58}}
+:root[data-theme="dark"]{--bg:#0f1626;--card:#19233a;--ink:#e8eefc;--mut:#9fb0cf;--pri:#5aa2e6;--ok:#3ec27f;--bad:#f06a6a;--gold:#f5c04a;--bd:#2c3a58}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.45}
+.wrap{max-width:640px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:20px;margin-bottom:14px}
+h1{margin:0 0 6px;font-size:1.6rem}h2{margin:0 0 12px;font-size:1.2rem}
+.mut{color:var(--mut)}.big{font-size:3rem;text-align:center;margin:4px 0}
+button{font:inherit;cursor:pointer}
+.btn{background:var(--pri);color:#fff;border:0;border-radius:12px;padding:12px 20px;font-weight:700;width:100%;margin-top:8px}
+.opt{display:block;width:100%;text-align:left;background:var(--card);color:var(--ink);border:2px solid var(--bd);border-radius:12px;padding:12px 14px;margin:8px 0}
+.opt:hover:not(:disabled){border-color:var(--pri)}
+.opt.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 18%,var(--card))}
+.opt.bad{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 18%,var(--card))}
+.hud{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-weight:700;margin-bottom:8px}
+.bar{height:8px;background:var(--bd);border-radius:6px;overflow:hidden;margin-bottom:6px}
+.bar>div{height:100%;background:var(--pri)}
+.speed>div{background:var(--gold);width:100%;animation:drain 30s linear forwards}
+@keyframes drain{to{width:0}}
+.fb{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--bg)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;margin:12px 0}
+.stats div{background:var(--bg);border-radius:12px;padding:10px}.stats b{display:block;font-size:1.3rem}
+ul{padding-left:20px}
+</style></head><body><div class="wrap">
+
+<div id="start" class="card">
+<div class="big">💻🎮</div>
+<h1>Computer Components Quest</h1>
+<p class="mut">Year 8 ICT &bull; 20 questions &bull; Hardware, CPU, memory and input devices</p>
+<ul>
+<li>Correct answer: <b>100 points</b></li>
+<li>Answer within 30 seconds: <b>+50 speed bonus</b> (watch the gold bar)</li>
+<li>3 correct in a row: <b>x1.5</b>. 5 in a row: <b>x2</b> 🔥</li>
+<li>Climb from Rookie Bit to CPU Champion!</li>
+</ul>
+<button class="btn" onclick="start()">Start the quest</button>
+</div>
+
+<div id="quiz" hidden>
+<div class="hud"><span id="qn"></span><span id="sc"></span><span id="st"></span></div>
+<div class="bar"><div id="pg"></div></div>
+<div class="bar speed"><div id="sp"></div></div>
+<div class="card"><h2 id="q"></h2><div id="opts"></div><div id="fb" class="fb" hidden></div><button id="nx" class="btn" hidden onclick="next()">Next</button></div>
+</div>
+
+<div id="end" class="card" hidden>
+<div class="big" id="re"></div><h1 id="rk" style="text-align:center"></h1>
+<div class="stats"><div><b id="fs"></b>Score</div><div><b id="fa"></b>Correct</div><div><b id="fb2"></b>Best streak</div></div>
+<div id="rv"></div>
+<button class="btn" onclick="start()">Play again</button>
+</div>
+
+</div>
+<script>
+const Q=[
+["Which of these is an example of hardware?",["Keyboard","Word processor","Operating system","Web browser"],0,"Hardware is the physical parts you can touch. The others are software."],
+["What is software?",["Programs and instructions that tell hardware what to do","The physical parts of a computer","The cables inside a computer","The screen of a computer"],0,"Software is the programs, like an operating system or a word processor."],
+["A computer system is hardware + software + ... ?",["Data and users","Paper and pens","Cables and plugs","Games and music"],0,"A computer system is hardware, software, data and users working together."],
+["Which is an advantage of a desktop computer?",["It is more powerful for the price","It runs on a battery all day","It fits in your pocket","It is easy to carry to school"],0,"Desktops give more power for the price and are easy to upgrade, but they are not portable."],
+["Which is a disadvantage of a laptop compared with a desktop?",["Its battery life is limited","It cannot be moved","It has no screen","It has no keyboard"],0,"Laptops are portable, but they depend on battery life and can be harder to upgrade."],
+["What is a disadvantage of a tablet?",["Typing is slower","It has no touch screen","It cannot connect to the internet","It is too heavy to carry"],0,"A tablet has no physical keyboard, so typing is usually slower."],
+["Which is an advantage of a smartphone?",["Calls, camera, GPS and internet in one device","A very large screen","Unlimited battery life","Huge processing power"],0,"A smartphone packs many tools into one pocket-sized device."],
+["What is the correct order of the data cycle?",["Input, processing, output","Output, input, processing","Processing, output, input","Input, output, processing"],0,"Data goes in, is processed, then results come out. Storage keeps data and programs."],
+["What does the CPU do with instructions?",["Fetches, decodes and executes them","Prints them","Deletes them","Only stores them"],0,"The CPU is the brain: it fetches, decodes and executes instructions."],
+["Which part of the CPU directs the flow of data and instructions?",["Control unit","ALU","Motherboard","Monitor"],0,"The control unit directs the flow of data and instructions."],
+["Which part does calculations and logical comparisons?",["ALU","Control unit","Registers","Speaker"],0,"The ALU (arithmetic logic unit) adds, subtracts and compares."],
+["What are registers?",["Tiny, very fast storage inside the CPU","Large permanent storage","Cables joining devices","Keys on a keyboard"],0,"Registers hold the data the CPU is working on right now."],
+["What does the motherboard do?",["It connects the CPU, memory and other components","It displays pictures","It prints documents","It stores films forever"],0,"The motherboard is the main circuit board that connects the parts."],
+["What does 'volatile' mean for RAM?",["Contents are lost when the power is off","Contents last forever","It can only be read","It is stored on a disc"],0,"RAM is volatile. ROM is non-volatile."],
+["What does ROM usually hold?",["Start-up instructions (BIOS)","Your homework files","Games you downloaded","Your photos"],0,"ROM keeps the start-up instructions, even when the power is off."],
+["What is cache memory?",["Small, very fast memory close to the CPU","Permanent storage on a disc","A type of printer","A type of input device"],0,"Cache stores frequently used data to speed up processing."],
+["Which of these is an INPUT device?",["Microphone","Monitor","Speakers","Printer"],0,"A microphone puts sound into the computer. The others give output."],
+["Which is a disadvantage of a touch screen?",["The screen gets dirty and accuracy can be low","It needs a separate mouse","It cannot be used on phones","It cannot show pictures"],0,"Touch screens are easy to use, but they get dirty and can be less accurate."],
+["Which input device is best for accurate freehand drawing?",["Graphics tablet","Keyboard","Scanner","Joystick"],0,"A graphics tablet is made for drawing and design."],
+["Which input device measures temperature, light or pressure?",["Sensor","Touchpad","Webcam","Mouse"],0,"Sensors give continuous readings without a person."]
+];
+const RANKS=[[0,"Rookie Bit","🐣"],[1500,"Byte Explorer","🧭"],[2500,"Kilobyte Hero","🦸"],[3500,"Megabyte Master","🧙"],[4500,"Gigabyte Genius","🧠"],[5300,"CPU Champion","👑"]];
+const $=s=>document.querySelector(s);
+let order,i,score,streak,best,correct,missed,t0,locked;
+function shuffle(a){for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a}
+function show(id){["start","quiz","end"].forEach(s=>$("#"+s).hidden=s!==id)}
+function start(){order=shuffle(Q.map((_,k)=>k));i=0;score=0;streak=0;best=0;correct=0;missed=[];show("quiz");next()}
+function hud(){$("#qn").textContent="Question "+Math.min(i+1,20)+"/20";$("#sc").textContent="⭐ "+score;$("#st").textContent=(streak>=3?"🔥 ":"")+"Streak "+streak+(streak>=5?" (x2)":streak>=3?" (x1.5)":"");$("#pg").style.width=(i/20*100)+"%"}
+function next(){
+if(i>=20)return finish();
+const q=Q[order[i]];locked=false;hud();
+$("#q").textContent=q[0];$("#fb").hidden=true;$("#nx").hidden=true;
+const box=$("#opts");box.innerHTML="";
+shuffle(q[1].map((t,k)=>[t,k])).forEach(([t,k])=>{const b=document.createElement("button");b.className="opt";b.textContent=t;b.onclick=()=>pick(b,k);box.appendChild(b)});
+const sp=$("#sp");sp.style.animation="none";void sp.offsetWidth;sp.style.animation="";t0=Date.now();
+}
+function pick(btn,k){
+if(locked)return;locked=true;
+const q=Q[order[i]],right=k===q[2],el=(Date.now()-t0)/1000;
+$("#sp").style.animationPlayState="paused";
+document.querySelectorAll(".opt").forEach(b=>{b.disabled=true;if(b.textContent===q[1][q[2]])b.classList.add("ok")});
+let msg;
+if(right){streak++;best=Math.max(best,streak);correct++;
+const m=streak>=5?2:streak>=3?1.5:1,bonus=el<=30?50:0,pts=Math.round((100+bonus)*m);score+=pts;
+msg="✅ Correct! +"+pts+(bonus?" (speed bonus!)":"")+(m>1?" x"+m:"")+"<br>"+q[3]}
+else{btn.classList.add("bad");streak=0;missed.push(order[i]);msg="❌ Not quite. Streak reset.<br>"+q[3]}
+$("#fb").innerHTML=msg;$("#fb").hidden=false;$("#nx").textContent=i===19?"See my results":"Next question";$("#nx").hidden=false;i++;hud();
+}
+function finish(){
+let r=RANKS[0];RANKS.forEach(x=>{if(score>=x[0])r=x});
+show("end");$("#re").textContent=r[2];$("#rk").textContent=r[1];
+$("#fs").textContent=score;$("#fa").textContent=correct+"/20";$("#fb2").textContent=best;
+$("#rv").innerHTML=missed.length?"<h2>Time to revise</h2><ul>"+missed.map(k=>"<li><b>"+Q[k][0]+"</b><br><span class='mut'>"+Q[k][1][Q[k][2]]+"</span></li>").join("")+"</ul>":"<h2>Perfect run! No questions to revise 🎉</h2>";
+}
+</script></body></html>
